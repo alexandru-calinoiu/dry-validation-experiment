@@ -7,7 +7,7 @@ input_data = {
   address: {
     street: 'Viapar Kendra',
     city: nil,
-    emails: ['test@test.com', 'invalid']
+    emails: ['test@test.com']
   }
 }
 
@@ -33,3 +33,13 @@ result = UserContractSchema.call(input_data)
 p result.success?
 p result.failure?
 p result.errors
+
+
+Schema = Dry::Validation.JSON do
+  required(:collection) { array? & min_size?(3) & each(:str?, min_size?: 2) }
+end
+
+p Schema.(collection: '').errors
+p Schema.(collection: []).errors
+p Schema.(collection: %w(test test 1))
+p Schema.(collection: %w(some valid schema))
