@@ -6,18 +6,27 @@ input_data = {
   age: 17,
   address: {
     street: 'Viapar Kendra',
-    city: nil
+    city: nil,
+    emails: ['test@test.com', 'invalid']
   }
 }
+
+AddressSchema = Dry::Validation.Schema do
+  configure do
+    def email?(value)
+      ! /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]/i.match(value).nil?
+    end
+  end
+  required(:street) { filled? }
+  optional(:city)
+  optional(:emails).each(:email?)
+end
 
 UserContractSchema = Dry::Validation.Schema do
   required(:name).filled
   required(:phone_number).filled
   required(:age) { none? | (filled? & int? & gt?(18)) }
-  required(:address).schema do
-    required(:street) { filled? }
-    optional(:city)
-  end
+  required(:address).schema(AddressSchema)
 end
 
 result = UserContractSchema.call(input_data)
