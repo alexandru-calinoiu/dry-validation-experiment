@@ -9,7 +9,7 @@ input_data = {
 UserContractSchema = Dry::Validation.Schema do
   required(:name).filled
   required(:phone_number).filled
-  required(:age) { filled? & int? & gt?(18) }
+  required(:age) { none? | (filled? & int? & gt?(18)) }
 end
 
 result = UserContractSchema.call(input_data)
